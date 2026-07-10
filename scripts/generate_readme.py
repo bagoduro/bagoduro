@@ -86,16 +86,10 @@ def fetch_total_commits_last_year():
 
 
 # ---------------------------------------------------------------------------
-# 2. Formatação ANSI (estilo neofetch)
+# 2. Formatação em texto puro (estilo neofetch, sem cores -
+#    o GitHub NAO renderiza codigos ANSI dentro de README.md,
+#    entao usamos so espacamento/pontos pra dar o efeito visual)
 # ---------------------------------------------------------------------------
-
-RESET = "\x1b[0m"
-LABEL = "\x1b[1;36m"
-VALUE = "\x1b[0;37m"
-HEADER = "\x1b[1;32m"
-SEP = "\x1b[1;30m"
-SECTION = "\x1b[1;33m"
-ART_COLOR = "\x1b[0;36m"
 
 LABEL_COL = 17
 
@@ -103,8 +97,8 @@ LABEL_COL = 17
 def fmt(label, value):
     if label:
         pad = label.ljust(LABEL_COL, ".")
-        return f"{LABEL}{pad}{RESET} {VALUE}{value}{RESET}"
-    return f"{' ' * (LABEL_COL + 1)}{VALUE}{value}{RESET}"
+        return f"{pad} {value}"
+    return f"{' ' * (LABEL_COL + 1)}{value}"
 
 
 def build_info_block(user, repos, total_commits):
@@ -115,8 +109,8 @@ def build_info_block(user, repos, total_commits):
     following = user.get("following", 0)
 
     info = []
-    info.append(f"{HEADER}pedro@bagoduro{RESET}")
-    info.append(f"{SEP}{'-' * 42}{RESET}")
+    info.append("pedro@bagoduro")
+    info.append("-" * 42)
     info.append(fmt("Nome", "Pedro Raposo"))
     info.append(fmt("Curso", "Engenharia de Software"))
     info.append(fmt("", "6º Período"))
@@ -145,13 +139,13 @@ def build_info_block(user, repos, total_commits):
     info.append(fmt("", "Cloud Computing"))
     info.append(fmt("", "Redes"))
     info.append(fmt("", "Segurança da Informação"))
-    info.append(f"{SEP}{'-' * 42}{RESET}")
+    info.append("-" * 42)
     info.append(fmt("Contato", "pedroraposo1999@gmail.com"))
     info.append(fmt("Discord", "bagoduro"))
     info.append(fmt("GitHub", f"github.com/{USERNAME}"))
     info.append("")
-    info.append(f"{SECTION}GitHub Stats{RESET}")
-    info.append(f"{SEP}{'-' * 42}{RESET}")
+    info.append("GitHub Stats")
+    info.append("-" * 42)
     info.append(fmt("Repositórios", str(repo_count)))
     info.append(fmt("Stars", str(stars)))
     info.append(fmt("Forks", str(forks)))
@@ -168,10 +162,9 @@ def combine(art_lines, info_lines, pad_width=70, offset=1):
     for i in range(total):
         raw_art = art_lines[i] if i < len(art_lines) else ""
         art_padded = raw_art.ljust(pad_width)
-        art_colored = f"{ART_COLOR}{art_padded}{RESET}" if raw_art else art_padded
         info_idx = i - offset
         info_line = info_lines[info_idx] if 0 <= info_idx < len(info_lines) else ""
-        out.append(art_colored + info_line)
+        out.append((art_padded + info_line).rstrip())
     return out
 
 
@@ -191,7 +184,7 @@ def main():
     info_lines = build_info_block(user, repos, total_commits)
     combined = combine(art_lines, info_lines)
 
-    readme_content = "```ansi\n" + "\n".join(combined) + "\n```\n"
+    readme_content = "```\n" + "\n".join(combined) + "\n```\n"
 
     repo_root = script_dir.parent
     (repo_root / "README.md").write_text(readme_content, encoding="utf-8")
