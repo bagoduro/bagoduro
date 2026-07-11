@@ -156,7 +156,7 @@ def build_info_block(user, repos, total_commits):
     return info
 
 
-def combine(art_lines, info_lines, pad_width=70, offset=1):
+def combine(art_lines, info_lines, pad_width=72, offset=1):
     total = max(len(art_lines), len(info_lines) + offset)
     out = []
     for i in range(total):
